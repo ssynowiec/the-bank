@@ -1,16 +1,20 @@
-import { getUser } from "@the-bank/db";
+import {getTransactions, getUser, addFounds } from "@the-bank/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const transactionRouter = createTRPCRouter({
-  all: protectedProcedure.query(() => {
-    throw new TRPCError({ code: "NOT_IMPLEMENTED" });
+  all: protectedProcedure.query(({ctx}) => {
+    return getTransactions(ctx.auth?.userId);
   }),
 
-  addFounds: protectedProcedure.mutation(() => {
-    throw new TRPCError({ code: "NOT_IMPLEMENTED" });
+  addFounds: protectedProcedure.input(
+      z.object({
+        value: z.number().min(1),
+      }),
+  ).mutation(async({input, ctx}) => {
+    return addFounds(ctx.auth?.userId, input.value)
   }),
 
   create: protectedProcedure
